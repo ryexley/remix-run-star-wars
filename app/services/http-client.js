@@ -1,6 +1,6 @@
 import "isomorphic-fetch"
 import HttpStatus from "http-status"
-import { normalizeUrl } from "../esm-modules"
+import normalizeUrl from "normalize-url"
 import { HttpRequestError } from "../errors/http-request-error"
 import { isNotEmpty } from "../util"
 

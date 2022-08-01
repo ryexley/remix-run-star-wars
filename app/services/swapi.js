@@ -6,4 +6,8 @@ export class StarWarsApiClient {
 		this.http = new HttpClient(api.baseUrl)
 		this.isolate = isolate
 	}
+
+	async searchCharacters({ query }) {
+		return this.http.get(api.characters, `search=${query}`, {})
+	}
 }
