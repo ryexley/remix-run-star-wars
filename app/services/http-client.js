@@ -1,8 +1,8 @@
 import "isomorphic-fetch"
 import HttpStatus from "http-status"
 import normalizeUrl from "normalize-url"
-import { HttpRequestError } from "../errors/http-request-error"
-import { isNotEmpty } from "../util"
+import { HttpRequestError } from "~/errors/http-request-error"
+import { isNotEmpty } from "~/util"
 
 const HTTP = {
 	HEAD: "HEAD",

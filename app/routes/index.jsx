@@ -1,21 +1,18 @@
-import { useLoaderData } from "@remix-run/react"
 import { MainLayout } from "~/layouts/main"
-import { StarWarsApiClient } from "../services/swapi"
+import { SearchForm } from "~/components/search-form"
+import { pages } from "~/urls"
+import { styled } from "~/styles"
 
-export async function loader() {
-  const swapi = new StarWarsApiClient()
-
-  const { status, data } = await swapi.searchCharacters({ query: "lo" })
-
-  return { searchResults: data }
-}
+const CharacterSearch = styled(SearchForm, {
+	margin: "10rem 20%",
+})
 
 export default function Index() {
-  const { searchResults } = useLoaderData()
-
   return (
     <MainLayout>
-      Lifeway coding exercise - Remix.run SWAPI app
+    	<CharacterSearch
+				method="get"
+				action={pages.search} />
     </MainLayout>
   )
 }

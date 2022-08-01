@@ -1,5 +1,6 @@
 import { createStitches } from "@stitches/react"
 import {
+	blueDark,
   slateDark,
   limeDark,
   blackA,
@@ -10,6 +11,7 @@ import {
   indigoDark,
   gray,
   grayDark,
+  yellow,
 } from "@radix-ui/colors"
 
 // type BreakpointKey = "xs" | "s" | "sm" | "m" | "ml" | "l" | "xl" | "xxl" | "xxxl"
@@ -61,16 +63,12 @@ export const {
     breaks,
     colors: {
       ...blackA,
-      ...limeDark,
-      ...orangeDark,
-      ...redDark,
-      ...crimsonDark,
-      ...slateDark,
       ...whiteA,
-      ...indigoDark,
+      ...slateDark,
       ...gray,
       ...grayDark,
-      themePrimary: "$orange9",
+      ...yellow,
+      ...blueDark,
       white: "$slate12",
       darkGray: "$blackA9",
       black: "$blackA12",

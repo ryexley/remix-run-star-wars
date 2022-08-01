@@ -8,12 +8,19 @@ export const globalStyles = globalCss({
   },
 
   body: {
-    ["--header-height"]: "5.625rem",
-    fontFamily: "$primary"
+    backgroundColor: "$gray2",
+    fontFamily: "$primary",
+    marginBottom: "10rem",
+    minWidth: "26.25rem",
   },
 
   a: {
-    smoothTransition: "all"
+  	color: "$yellow9",
+    smoothTransition: "all",
+  },
+
+  ["[aria-hidden=true]"]: {
+  	display: "none",
   },
 
   ["a, input, select"]: {
