@@ -1,11 +1,17 @@
 import { redirect } from "@remix-run/node"
-import { Link, useLoaderData } from "@remix-run/react"
+import { Link, useLoaderData, useTransition } from "@remix-run/react"
 import { MainLayout } from "~/layouts/main"
 import { StarWarsApiClient } from "~/services/swapi"
 import { CharacterImage } from "~/components/character-image"
+import { LoadingIndicator } from "~/components/loading-indicator"
 import { styled } from "~/styles"
 import { pages, images } from "~/urls"
 import { getCharacterIdFromUrl } from "~/util/character"
+
+const Loading = styled(LoadingIndicator, {
+	justifyContent: "center",
+	margin: "5rem auto"
+})
 
 const Heading = styled("h1", {
 	color: "$white",
@@ -75,6 +81,8 @@ export async function loader({ request }) {
 
 export default function Search() {
 	const { searchResults, searchResults: { results }, query } = useLoaderData()
+	const { state: transitionState, type: transitionType } = useTransition()
+	const showLoading = transitionState === "loading"
 	const showNoResults = searchResults.count === 0
 
 	const NoResults = () => (
@@ -83,29 +91,35 @@ export default function Search() {
 
 	return (
 		<MainLayout>
-			<Heading>Search Results</Heading>
-			{showNoResults ? (
-				<NoResults />
+			{showLoading ? (
+				<Loading />
 			) : (
-				<SearchResults>
-					{results.map((item, index) => {
-						const characterId = getCharacterIdFromUrl(item.url)
-						const characterImageUrl = images.character(characterId)
-						const searchResultItemStyle = {
-							backgroundImage: `url(${characterImageUrl})`
-						}
+				<>
+					<Heading>Search Results</Heading>
+					{showNoResults ? (
+						<NoResults />
+					) : (
+						<SearchResults>
+							{results.map((item, index) => {
+								const characterId = getCharacterIdFromUrl(item.url)
+								const characterImageUrl = images.character(characterId)
+								const searchResultItemStyle = {
+									backgroundImage: `url(${characterImageUrl})`
+								}
 
-						return (
-							<SearchResultItem
-								key={`search-result-${index}`}
-								css={searchResultItemStyle}>
-								<Link to={pages.character(characterId)}>
-									{item.name}
-								</Link>
-							</SearchResultItem>
-						)
-					})}
-				</SearchResults>
+								return (
+									<SearchResultItem
+										key={`search-result-${index}`}
+										css={searchResultItemStyle}>
+										<Link to={pages.character(characterId)}>
+											{item.name}
+										</Link>
+									</SearchResultItem>
+								)
+							})}
+						</SearchResults>
+					)}
+				</>
 			)}
 		</MainLayout>
 	)

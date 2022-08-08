@@ -1,11 +1,17 @@
-import { useLoaderData } from "@remix-run/react"
+import { useLoaderData, useTransition } from "@remix-run/react"
 import { MainLayout } from "~/layouts/main"
 import { StarWarsApiClient } from "~/services/swapi"
 import { CharacterImage } from "~/components/character-image"
+import { LoadingIndicator } from "~/components/loading-indicator"
 import { images } from "~/urls"
 import { isNotEmpty } from "~/util"
 import { getMovieIdFromUrl, getResourcePath } from "~/util/character"
 import { styled } from "~/styles"
+
+const Loading = styled(LoadingIndicator, {
+	justifyContent: "center",
+	margin: "5rem auto"
+})
 
 const Heading = styled("h1", {
 	color: "$white",
@@ -149,115 +155,123 @@ export async function loader({ params }) {
 
 export default function Character({ id }) {
 	const { characterData } = useLoaderData()
+	const { state: transitionState, type: transitionType } = useTransition()
 	const characterSpecies = characterData.species.map(s => s.name).join(", ")
 	const showSpecies = isNotEmpty(characterSpecies)
 	const hasFlownStarships = characterData.starships.length > 0
 	const hasAppeardInFilms = characterData.films.length > 0
+	const showLoading = transitionState === "loading"
 
 	return (
 		<MainLayout>
-			<Heading>{characterData.name}</Heading>
-			<CharacterProfile>
-				<ProfileImage
-					characterId={characterData.id}
-					characterName={characterData.name}
-					height={550} width={400} />
-				<section>
-					<CharacterDetailsHeading>About</CharacterDetailsHeading>
-					<CharacterDetails>
-						<li>
-							<CharacterDetailLabel>Home world</CharacterDetailLabel>
-							<CharacterDetail>{characterData.homeworld.name}</CharacterDetail>
-						</li>
-						{showSpecies ? (
-							<li>
-								<CharacterDetailLabel>Species</CharacterDetailLabel>
-								<CharacterDetail>{characterSpecies}</CharacterDetail>
-							</li>
-						) : null}
-						<li>
-							<CharacterDetailLabel>Gender</CharacterDetailLabel>
-							<CharacterDetail>{characterData.gender}</CharacterDetail>
-						</li>
-						<li>
-							<CharacterDetailLabel>Birth Year</CharacterDetailLabel>
-							<CharacterDetail>{characterData.birth_year}</CharacterDetail>
-						</li>
-						<li>
-							<CharacterDetailLabel>Height</CharacterDetailLabel>
-							<CharacterDetail>{characterData.height}</CharacterDetail>
-						</li>
-						<li>
-							<CharacterDetailLabel>Eye Color</CharacterDetailLabel>
-							<CharacterDetail>{characterData.eye_color}</CharacterDetail>
-						</li>
-						<li>
-							<CharacterDetailLabel>Hair Color</CharacterDetailLabel>
-							<CharacterDetail>{characterData.hair_color}</CharacterDetail>
-						</li>
-						<li>
-							<CharacterDetailLabel>Mass</CharacterDetailLabel>
-							<CharacterDetail>{characterData.mass}</CharacterDetail>
-						</li>
-						<li>
-							<CharacterDetailLabel>Skin Color</CharacterDetailLabel>
-							<CharacterDetail>{characterData.skin_color}</CharacterDetail>
-						</li>
-					</CharacterDetails>
-					<CharacterDetailsSeparator />
-					{hasAppeardInFilms ? (
-						<>
-							<CharacterDetailsHeading>Films</CharacterDetailsHeading>
-							<Films>
-								{characterData.films.map(film => {
-									const filmId = getMovieIdFromUrl(film.url)
-									const filmImageUrl = images.movie(filmId)
+			{showLoading ? (
+				<Loading />
+			) : (
+				<>
+					<Heading>{characterData.name}</Heading>
+					<CharacterProfile>
+						<ProfileImage
+							characterId={characterData.id}
+							characterName={characterData.name}
+							height={550} width={400} />
+						<section>
+							<CharacterDetailsHeading>About</CharacterDetailsHeading>
+							<CharacterDetails>
+								<li>
+									<CharacterDetailLabel>Home world</CharacterDetailLabel>
+									<CharacterDetail>{characterData.homeworld.name}</CharacterDetail>
+								</li>
+								{showSpecies ? (
+									<li>
+										<CharacterDetailLabel>Species</CharacterDetailLabel>
+										<CharacterDetail>{characterSpecies}</CharacterDetail>
+									</li>
+								) : null}
+								<li>
+									<CharacterDetailLabel>Gender</CharacterDetailLabel>
+									<CharacterDetail>{characterData.gender}</CharacterDetail>
+								</li>
+								<li>
+									<CharacterDetailLabel>Birth Year</CharacterDetailLabel>
+									<CharacterDetail>{characterData.birth_year}</CharacterDetail>
+								</li>
+								<li>
+									<CharacterDetailLabel>Height</CharacterDetailLabel>
+									<CharacterDetail>{characterData.height}</CharacterDetail>
+								</li>
+								<li>
+									<CharacterDetailLabel>Eye Color</CharacterDetailLabel>
+									<CharacterDetail>{characterData.eye_color}</CharacterDetail>
+								</li>
+								<li>
+									<CharacterDetailLabel>Hair Color</CharacterDetailLabel>
+									<CharacterDetail>{characterData.hair_color}</CharacterDetail>
+								</li>
+								<li>
+									<CharacterDetailLabel>Mass</CharacterDetailLabel>
+									<CharacterDetail>{characterData.mass}</CharacterDetail>
+								</li>
+								<li>
+									<CharacterDetailLabel>Skin Color</CharacterDetailLabel>
+									<CharacterDetail>{characterData.skin_color}</CharacterDetail>
+								</li>
+							</CharacterDetails>
+							<CharacterDetailsSeparator />
+							{hasAppeardInFilms ? (
+								<>
+									<CharacterDetailsHeading>Films</CharacterDetailsHeading>
+									<Films>
+										{characterData.films.map(film => {
+											const filmId = getMovieIdFromUrl(film.url)
+											const filmImageUrl = images.movie(filmId)
 
-									return (
-										<li key={`film-${filmId}-item`}>
-											<FilmImage
-												src={filmImageUrl}
-												alt={`image for film: ${film.title}`}
-												title={film.title} />
-										</li>
-									)
-								})}
-							</Films>
-						</>
-					) : (
-						<p>This character has not appeared in any films.</p>
-					)}
-					<CharacterDetailsSeparator />
-					{hasFlownStarships ? (
-						<>
-							<CharacterDetailsHeading>Starships Flown</CharacterDetailsHeading>
-							<Starships>
-								{characterData.starships.map((starship, index) => {
-									return (
-										<li key={`starship-${index}`}>
-											<StarshipName>{starship.name}</StarshipName>
-											<StarshipDetail>
-												<StarshipDetailLabel>Starship Class: </StarshipDetailLabel>
-												<StarshipDetailValue css={{ textTransform: "capitalize" }}>{starship.starship_class}</StarshipDetailValue>
-											</StarshipDetail>
-											<StarshipDetail>
-												<StarshipDetailLabel>Manufacturer: </StarshipDetailLabel>
-												<StarshipDetailValue>{starship.manufacturer}</StarshipDetailValue>
-											</StarshipDetail>
-											<StarshipDetail>
-												<StarshipDetailLabel>Model: </StarshipDetailLabel>
-												<StarshipDetailValue>{starship.model}</StarshipDetailValue>
-											</StarshipDetail>
-										</li>
-									)
-								})}
-							</Starships>
-						</>
-					) : (
-						<p>This character has not flown any starships.</p>
-					)}
-				</section>
-			</CharacterProfile>
+											return (
+												<li key={`film-${filmId}-item`}>
+													<FilmImage
+														src={filmImageUrl}
+														alt={`image for film: ${film.title}`}
+														title={film.title} />
+												</li>
+											)
+										})}
+									</Films>
+								</>
+							) : (
+								<p>This character has not appeared in any films.</p>
+							)}
+							<CharacterDetailsSeparator />
+							{hasFlownStarships ? (
+								<>
+									<CharacterDetailsHeading>Starships Flown</CharacterDetailsHeading>
+									<Starships>
+										{characterData.starships.map((starship, index) => {
+											return (
+												<li key={`starship-${index}`}>
+													<StarshipName>{starship.name}</StarshipName>
+													<StarshipDetail>
+														<StarshipDetailLabel>Starship Class: </StarshipDetailLabel>
+														<StarshipDetailValue css={{ textTransform: "capitalize" }}>{starship.starship_class}</StarshipDetailValue>
+													</StarshipDetail>
+													<StarshipDetail>
+														<StarshipDetailLabel>Manufacturer: </StarshipDetailLabel>
+														<StarshipDetailValue>{starship.manufacturer}</StarshipDetailValue>
+													</StarshipDetail>
+													<StarshipDetail>
+														<StarshipDetailLabel>Model: </StarshipDetailLabel>
+														<StarshipDetailValue>{starship.model}</StarshipDetailValue>
+													</StarshipDetail>
+												</li>
+											)
+										})}
+									</Starships>
+								</>
+							) : (
+								<p>This character has not flown any starships.</p>
+							)}
+						</section>
+					</CharacterProfile>
+				</>
+			)}
 		</MainLayout>
 	)
 }
